@@ -21,6 +21,11 @@ public class TermsOfServiceController {
         return termsService.allTermsOfService();
     }
 
+    @GetMapping(value = "/latest")
+    public TermsOfService latestTerm() {
+        return termsService.findLatestTerm();
+    }
+
     @GetMapping(value = "/version/{version}")
     public TermsOfService findByVersion(@PathVariable Long version) {
         return termsService.findByVersion(version);
@@ -32,7 +37,7 @@ public class TermsOfServiceController {
     }
 
     // User accepts latest version of the Terms of Service
-    @PostMapping(value = "/accept")
+    @GetMapping(value = "/accept")
     public Boolean accept(Principal principal) {
         return termsService.accept(principal.getName());
     }
