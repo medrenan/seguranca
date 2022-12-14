@@ -3,6 +3,7 @@ package com.fatec.seguranca.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -12,8 +13,10 @@ public class User {
     private Long id;
     private String name;
     private String password;
+    private String email;
     private Set<Authorization> authorizations;
     private TermsOfService termsOfService;
+    private List<Alternative> alternatives;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,5 +69,27 @@ public class User {
 
     public void setTermsOfService(TermsOfService termsOfService) {
         this.termsOfService = termsOfService;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "ual_user_alternatives",
+            joinColumns = { @JoinColumn(name = "usr_id") },
+            inverseJoinColumns = { @JoinColumn(name = "alt_id") }
+    )
+    public List<Alternative> getAlternatives() {
+        return alternatives;
+    }
+
+    public void setAlternatives(List<Alternative> alternatives) {
+        this.alternatives = alternatives;
+    }
+
+    @Column(name = "usr_email")
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

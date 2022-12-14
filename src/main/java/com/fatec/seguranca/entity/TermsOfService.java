@@ -8,8 +8,9 @@ import java.util.List;
 public class TermsOfService {
 
     private Long version;
-    private String description;
+    private List<Alternative> alternatives;
     private List<User> users;
+    private LogTermsOfService logTermsOfService;
 
     @Id
     @SequenceGenerator(name = "ter_terms_of_service_version_seq",
@@ -26,15 +27,6 @@ public class TermsOfService {
         this.version = version;
     }
 
-    @Column(name = "ter_description")
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     @OneToMany(mappedBy = "termsOfService")
     public List<User> getUsers() {
         return users;
@@ -42,5 +34,28 @@ public class TermsOfService {
 
     public void setUsers(List<User> users) {
         this.users = users;
+    }
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ter_log_term_id")
+    public LogTermsOfService getLogTermsOfService() {
+        return logTermsOfService;
+    }
+
+    public void setLogTermsOfService(LogTermsOfService logTermsOfService) {
+        this.logTermsOfService = logTermsOfService;
+    }
+
+    @ManyToMany
+    @JoinTable(name = "ter_alt_term_alternatives",
+            joinColumns = { @JoinColumn(name = "ter_version") },
+            inverseJoinColumns = { @JoinColumn(name = "alt_id") }
+    )
+    public List<Alternative> getAlternatives() {
+        return alternatives;
+    }
+
+    public void setAlternatives(List<Alternative> alternatives) {
+        this.alternatives = alternatives;
     }
 }

@@ -1,13 +1,16 @@
 package com.fatec.seguranca.service;
 
+import com.fatec.seguranca.entity.LogTermsOfService;
 import com.fatec.seguranca.entity.TermsOfService;
 import com.fatec.seguranca.entity.User;
+import com.fatec.seguranca.repository.LogTermsOfServiceRepository;
 import com.fatec.seguranca.repository.TermsOfServiceRepository;
 import com.fatec.seguranca.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +23,9 @@ public class TermsOfServiceServiceImpl implements TermsOfServiceService{
     @Autowired
     UserRepository userRepository;
 
+    @Autowired
+    LogTermsOfServiceRepository logTermsOfServiceRepository;
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public TermsOfService newTermsOfService(TermsOfService termsOfService) {
@@ -27,11 +33,13 @@ public class TermsOfServiceServiceImpl implements TermsOfServiceService{
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<TermsOfService> allTermsOfService() {
         return termsOfServiceRepository.findAll();
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public TermsOfService findByVersion(Long version) {
         Optional<TermsOfService> termsOfServiceOptional = termsOfServiceRepository.findById(version);
         if(termsOfServiceOptional.isPresent()) {
@@ -56,6 +64,7 @@ public class TermsOfServiceServiceImpl implements TermsOfServiceService{
         }
         user.setTermsOfService(this.findLatestTerm());
         userRepository.save(user);
+        logTermsOfServiceByUserAction(user);
 
         return true;
     }
@@ -73,5 +82,16 @@ public class TermsOfServiceServiceImpl implements TermsOfServiceService{
         int versionCompare = userAcceptedVersion.compareTo(termsOfServiceRepository.findLatestTermsOfService().getVersion());
 
         return versionCompare >= 0;
+    }
+
+    private void logTermsOfServiceByUserAction(User user) {
+        LogTermsOfService log = new LogTermsOfService();
+
+        log.setUserId(user.getId());
+        log.setTermOfService(user.getTermsOfService());
+        log.setAccepted(user.getTermsOfService() != null);
+        log.setDate(LocalDateTime.now());
+
+        logTermsOfServiceRepository.save(log);
     }
 }
